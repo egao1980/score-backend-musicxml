@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work>
+    <work-title>Hymn in Three Verses</work-title>
+  </work>
+  <part-list>
+    <score-part id="p-5">
+      <part-name>Melody</part-name>
+      <player id="v-7">
+        <player-name/>
+      </player>
+    </score-part>
+  </part-list>
+  <part id="p-5">
+    <measure number="1" id="m-1.p-5">
+      <attributes>
+        <divisions>1</divisions>
+        <key>
+          <fifths>1</fifths>
+          <mode>major</mode>
+        </key>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <clef id="st-6">
+          <sign>G</sign>
+          <line>2</line>
+        </clef>
+      </attributes>
+      <note id="e-8">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <lyric number="1" id="ly-9">
+          <syllabic>single</syllabic>
+          <text>All</text>
+        </lyric>
+        <lyric number="2" id="ly-a">
+          <syllabic>single</syllabic>
+          <text>Sing</text>
+        </lyric>
+        <lyric number="3" id="ly-b">
+          <syllabic>single</syllabic>
+          <text>Him</text>
+        </lyric>
+      </note>
+      <note id="e-c">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-d">
+          <syllabic>begin</syllabic>
+          <text>peo</text>
+        </lyric>
+        <lyric number="2" id="ly-e">
+          <syllabic>single</syllabic>
+          <text>to</text>
+        </lyric>
+        <lyric number="3" id="ly-f">
+          <syllabic>single</syllabic>
+          <text>serve</text>
+        </lyric>
+      </note>
+      <note id="e-g">
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-h">
+          <syllabic>end</syllabic>
+          <text>ple</text>
+        </lyric>
+        <lyric number="2" id="ly-i">
+          <syllabic>single</syllabic>
+          <text>the</text>
+        </lyric>
+        <lyric number="3" id="ly-j">
+          <syllabic>single</syllabic>
+          <text>with</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="2" id="m-2.p-5">
+      <note id="e-k">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-l">
+          <syllabic>single</syllabic>
+          <text>that</text>
+        </lyric>
+        <lyric number="2" id="ly-m">
+          <syllabic>single</syllabic>
+          <text>Lord</text>
+        </lyric>
+        <lyric number="3" id="ly-n">
+          <syllabic>single</syllabic>
+          <text>mirth,</text>
+        </lyric>
+      </note>
+      <note id="e-o">
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <lyric number="1" id="ly-p">
+          <syllabic>single</syllabic>
+          <text>on</text>
+        </lyric>
+        <lyric number="2" id="ly-q">
+          <syllabic>single</syllabic>
+          <text>with</text>
+        </lyric>
+        <lyric number="3" id="ly-r">
+          <syllabic>single</syllabic>
+          <text>his</text>
+        </lyric>
+      </note>
+      <note id="e-s">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-t">
+          <syllabic>single</syllabic>
+          <text>earth</text>
+        </lyric>
+        <lyric number="2" id="ly-u">
+          <syllabic>begin</syllabic>
+          <text>ev</text>
+        </lyric>
+        <lyric number="3" id="ly-v">
+          <syllabic>single</syllabic>
+          <text>praise</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="3" id="m-3.p-5">
+      <note id="e-w">
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-x">
+          <syllabic>single</syllabic>
+          <text>do</text>
+        </lyric>
+        <lyric number="2" id="ly-y">
+          <syllabic>middle</syllabic>
+          <text>er</text>
+        </lyric>
+        <lyric number="3" id="ly-z">
+          <syllabic>single</syllabic>
+          <text>forth</text>
+        </lyric>
+      </note>
+      <note id="e-10">
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <notations>
+          <slur type="start" number="1" id="sp-1d"/>
+        </notations>
+        <lyric number="1" id="ly-11">
+          <syllabic>single</syllabic>
+          <text>dwell,</text>
+          <extend/>
+        </lyric>
+        <lyric number="2" id="ly-12">
+          <syllabic>end</syllabic>
+          <text>y</text>
+        </lyric>
+        <lyric number="3" id="ly-13">
+          <syllabic>single</syllabic>
+          <text>tell,</text>
+          <extend/>
+        </lyric>
+      </note>
+      <note id="e-14">
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <notations>
+          <slur type="stop" number="1"/>
+          <articulations id="br-15">
+            <breath-mark/>
+          </articulations>
+        </notations>
+        <lyric number="2" id="ly-16">
+          <syllabic>single</syllabic>
+          <text>voice;</text>
+        </lyric>
+      </note>
+      <note id="e-17">
+        <rest/>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="4" id="m-4.p-5">
+      <note id="e-18">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <voice>1</voice>
+        <type>whole</type>
+        <notations>
+          <fermata id="fe-19">normal</fermata>
+        </notations>
+        <lyric number="1" id="ly-1a">
+          <syllabic>single</syllabic>
+          <text>Sing</text>
+        </lyric>
+        <lyric number="2" id="ly-1b">
+          <syllabic>single</syllabic>
+          <text>Him</text>
+        </lyric>
+        <lyric number="3" id="ly-1c">
+          <syllabic>single</syllabic>
+          <text>Come</text>
+        </lyric>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
+    </measure>
+  </part>
+</score-partwise>

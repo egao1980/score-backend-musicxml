@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work>
+    <work-title>Recognised Page</work-title>
+  </work>
+  <part-list>
+    <score-part id="p-4">
+      <part-name>Voice</part-name>
+      <player id="v-6">
+        <player-name/>
+      </player>
+    </score-part>
+  </part-list>
+  <part id="p-4">
+    <measure number="1" id="m-1.p-4">
+      <attributes>
+        <divisions>1</divisions>
+        <key>
+          <fifths>-1</fifths>
+          <mode>major</mode>
+        </key>
+        <time>
+          <beats>3</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <clef id="st-5">
+          <sign>G</sign>
+          <line>2</line>
+        </clef>
+      </attributes>
+      <harmony id="h-k">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind>major</kind>
+      </harmony>
+      <note id="e-7">
+        <pitch>
+          <step>F</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <notations>
+          <slur type="start" number="1" id="sp-m"/>
+        </notations>
+        <lyric number="1" id="ly-8">
+          <syllabic>begin</syllabic>
+          <text>Glo</text>
+        </lyric>
+      </note>
+      <note id="e-9">
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-a">
+          <syllabic>middle</syllabic>
+          <text>ri</text>
+        </lyric>
+      </note>
+      <note id="e-b">
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <notations>
+          <slur type="stop" number="1"/>
+        </notations>
+        <lyric number="1" id="ly-c">
+          <syllabic>end</syllabic>
+          <text>a</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="2" id="m-2.p-4">
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <harmony id="h-l">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind>dominant</kind>
+      </harmony>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <note id="n-e">
+        <pitch>
+          <step>F</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <notations id="e-d"/>
+      </note>
+      <note id="n-f">
+        <chord/>
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+      </note>
+      <note id="n-g">
+        <chord/>
+        <pitch>
+          <step>C</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+      </note>
+      <note id="e-h">
+        <rest/>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="3" id="m-3.p-4">
+      <note id="e-i">
+        <pitch>
+          <step>F</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>3</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot/>
+        <notations>
+          <fermata id="fe-j">normal</fermata>
+        </notations>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
+    </measure>
+  </part>
+</score-partwise>

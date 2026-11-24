@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work>
+    <work-title>Amazing Grace</work-title>
+  </work>
+  <identification>
+    <creator type="composer">Traditional</creator>
+    <creator type="lyricist">John Newton</creator>
+  </identification>
+  <part-list>
+    <score-part id="p-7">
+      <part-name>Voice</part-name>
+      <player id="v-9">
+        <player-name/>
+      </player>
+    </score-part>
+  </part-list>
+  <part id="p-7">
+    <measure number="0" implicit="yes" id="m-1.p-7">
+      <attributes>
+        <divisions>2</divisions>
+        <key>
+          <fifths>1</fifths>
+          <mode>major</mode>
+        </key>
+        <time>
+          <beats>3</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <clef id="st-8">
+          <sign>G</sign>
+          <line>2</line>
+        </clef>
+      </attributes>
+      <direction id="tm-2">
+        <direction-type>
+          <metronome>
+            <beat-unit>quarter</beat-unit>
+            <per-minute>72</per-minute>
+          </metronome>
+        </direction-type>
+        <sound tempo="72"/>
+      </direction>
+      <note id="e-a">
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-b">
+          <syllabic>begin</syllabic>
+          <text>A</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="1" id="m-3.p-7">
+      <note id="e-c">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <lyric number="1" id="ly-d">
+          <syllabic>middle</syllabic>
+          <text>maz</text>
+        </lyric>
+      </note>
+      <note id="e-e">
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>eighth</type>
+        <notations>
+          <slur type="start" number="1" id="sp-s"/>
+        </notations>
+        <lyric number="1" id="ly-f">
+          <syllabic>end</syllabic>
+          <text>ing</text>
+          <extend/>
+        </lyric>
+      </note>
+      <note id="e-g">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>eighth</type>
+        <notations>
+          <slur type="stop" number="1"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="2" id="m-4.p-7">
+      <note id="e-h">
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <lyric number="1" id="ly-i">
+          <syllabic>single</syllabic>
+          <text>grace</text>
+        </lyric>
+      </note>
+      <note id="e-j">
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-k">
+          <syllabic>single</syllabic>
+          <text>how</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="3" id="m-5.p-7">
+      <note id="e-l">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <lyric number="1" id="ly-m">
+          <syllabic>single</syllabic>
+          <text>sweet</text>
+        </lyric>
+      </note>
+      <note id="e-n">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <lyric number="1" id="ly-o">
+          <syllabic>single</syllabic>
+          <text>the</text>
+        </lyric>
+      </note>
+    </measure>
+    <measure number="4" id="m-6.p-7">
+      <note id="e-p">
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <notations>
+          <fermata id="fe-q">normal</fermata>
+        </notations>
+        <lyric number="1" id="ly-r">
+          <syllabic>single</syllabic>
+          <text>sound</text>
+        </lyric>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
+    </measure>
+  </part>
+</score-partwise>

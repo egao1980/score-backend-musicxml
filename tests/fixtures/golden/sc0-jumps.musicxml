@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work>
+    <work-title>Dal Segno al Coda</work-title>
+  </work>
+  <part-list>
+    <score-part id="p-f">
+      <part-name>Oboe</part-name>
+      <part-abbreviation>Ob.</part-abbreviation>
+      <player id="v-h">
+        <player-name/>
+      </player>
+    </score-part>
+  </part-list>
+  <part id="p-f">
+    <measure number="1" text="1" id="m-1.p-f">
+      <attributes>
+        <divisions>1</divisions>
+        <key>
+          <fifths>1</fifths>
+          <mode>minor</mode>
+        </key>
+        <time>
+          <beats>2</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <clef id="st-g">
+          <sign>G</sign>
+          <line>2</line>
+        </clef>
+      </attributes>
+      <direction id="rh-2">
+        <direction-type>
+          <rehearsal>Intro</rehearsal>
+        </direction-type>
+      </direction>
+      <note id="e-i">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+      <note id="e-j">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="2" text="2" id="m-3.p-f">
+      <direction id="rh-5">
+        <direction-type>
+          <rehearsal>A</rehearsal>
+        </direction-type>
+      </direction>
+      <direction id="jm-4">
+        <direction-type>
+          <segno/>
+        </direction-type>
+        <sound segno="segno"/>
+      </direction>
+      <note id="e-k">
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+      </note>
+    </measure>
+    <measure number="3" text="3" id="m-6.p-f">
+      <note id="e-l">
+        <pitch>
+          <step>A</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+      <note id="e-m">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="4" text="4" id="m-7.p-f">
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <direction id="jm-8">
+        <direction-type>
+          <words>To Coda</words>
+        </direction-type>
+        <sound tocoda="coda"/>
+      </direction>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <note id="e-n">
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+      </note>
+    </measure>
+    <measure number="5" text="5" id="m-9.p-f">
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <direction id="jm-a">
+        <direction-type>
+          <words>D.S. al Coda</words>
+        </direction-type>
+        <sound dalsegno="segno"/>
+      </direction>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <note id="e-o">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+      <note id="e-p">
+        <pitch>
+          <step>D</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="6" text="6" id="m-b.p-f">
+      <direction id="rh-d">
+        <direction-type>
+          <rehearsal>Coda</rehearsal>
+        </direction-type>
+      </direction>
+      <direction id="jm-c">
+        <direction-type>
+          <coda/>
+        </direction-type>
+        <sound coda="coda"/>
+      </direction>
+      <note id="e-q">
+        <pitch>
+          <step>G</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+      <note id="e-r">
+        <pitch>
+          <step>F</step>
+          <alter>1</alter>
+          <octave>4</octave>
+        </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+      </note>
+    </measure>
+    <measure number="7" text="7" id="m-e.p-f">
+      <note id="e-s">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <notations>
+          <fermata id="fe-t">normal</fermata>
+        </notations>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
+    </measure>
+  </part>
+</score-partwise>
