@@ -30,4 +30,4 @@
                                                   :format :musicxml))
                         'serdes-protocol:serdes-decode-error)))
       (ok (typep c 'serdes-protocol:serdes-decode-error))
-      (ok (and c (search "musicxml-unsupported" (serdes-protocol:serdes-error-message c)))))))
+      (ok (and c (search "ornaments[1]" (serdes-protocol:serdes-error-message c)))))))

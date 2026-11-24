@@ -9,7 +9,7 @@ uv run --with music21==10.5.2 python -I tests/fixtures/generate-sc2.py
 | File | Source | Version | SPDX | How |
 |------|--------|---------|------|-----|
 | `sc0/*.sexp` | the SC0 fixture scores of score-protocol (hand-built; the tunes and texts they name are public domain) | score-protocol 0.1.0 | MIT | copied from score-protocol `tests/fixtures/` |
-| `golden/*.musicxml` | the SC0 scores, as `write-musicxml` must write them | — | MIT | `generate-sc2.py`: a second implementation of the rules in `src/writer.lisp` and `src/harmony.lisp`, independent of the Lisp code |
+| `golden/*.musicxml` | the SC0 scores, as `write-musicxml` must write them | — | MIT | `generate-sc2.py`: a second implementation of the rules in `src/writer.lisp`, with music-theory 0.5.1's MusicXML kind rules for `<harmony>`, independent of the Lisp code |
 | `corpus/*.musicxml` | 20 public-domain pieces (table below), re-encoded by us; harmonies of the hymns are ours | — | MIT | `generate-sc2.py`, from the tune data in the script, written the way a notation program writes MusicXML: no ids, layout and playback elements the reader ignores, voices 1, 2, 5, 6 |
 | `corpus/hymn-shared.musicxml` | *Tallis's Canon* (below) in hymnal layout: soprano and alto, tenor and bass, as shared-stem chords where their rhythms agree, a single note where they sing one pitch, two voices in bar 3 | — | MIT | `generate-sc2.py` (`shared_stems`), from the four voices of `hymn-split` |
 | `lead-sheet.mxl` | `corpus/amazing-grace.musicxml` in a compressed archive as other programs write one: deflated entries, a PDF rendition listed first in `container.xml`, the score under `music/` | — | MIT | `generate-sc2.py`, with Python's `zipfile` |
@@ -50,7 +50,7 @@ The brief also lists MusicXML files exported by MuseScore 4. No MuseScore was av
 
 - **Units.** Offsets and durations are whole notes; music21's are quarter notes. The script divides by 4.
 - **Voices.** music21 makes `Voice` objects only in a measure whose staff holds two or more voices. A fact's voice is the voice's rank in its part (by `<voice>` value, as the reader orders voices) in such measures, and NIL elsewhere.
-- **`suspended-fourth` with an added 7.** MusicXML defines an added degree's alter relative to the dominant chord, so `add 7`, alter 0, is a minor seventh and the chord is G7sus4 (rule R-SUS7 in `src/harmony.lisp`). music21 adds a major seventh (G C D F♯). The corpus avoids the form; `tests/sc2-harmony-test.lisp` pins our reading.
+- **`suspended-fourth` with an added 7.** music21 adds a major seventh (G C D F♯), although MusicXML defines an added degree's alter relative to the dominant chord (a minor seventh). music-theory 0.5.1 admits no added 7 at all, so the reader reports such a harmony unsupported. The corpus avoids the form; `tests/sc2-harmony-test.lisp` pins the behaviour.
 - **What music21 doesn't read.** It ignores `id` attributes, `<player>` and the measure `text` attribute, and keeps a text-only tempo direction as a text expression. Ids, voice names, number labels and text-only tempo marks are checked by hand-written tests instead; tempo facts list metronome marks only.
 - **Chord tones.** music21's chord pitches include a slash bass. Both sides of a harmony fact are the tones plus the bass, as a set of pitch-class names.
 - **Text.** music21 writes flats as `-`; facts use `b` (`Bb4`), as music-theory prints them.

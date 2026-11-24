@@ -58,11 +58,6 @@
   "READ-MUSICXML of tests/fixtures/NAME, as a pathname."
   (apply #'read-musicxml (fixture-path name) keys))
 
-(defun quoted-rows (rows)
-  "ROWS with every value quoted: DEFTEST-PARAMETRIZE evaluates the values of
-:ROWS rows as forms, like literal rows."
-  (mapcar (lambda (row) (mapcar (lambda (x) (list 'quote x)) row)) rows))
-
 ;;; Forms ---------------------------------------------------------------------------
 
 (defparameter +element-kinds+
@@ -218,6 +213,16 @@ go after <duration> (voice, staff, notations...)."
   "The first condition of TYPE THUNK signals, or NIL."
   (handler-case (progn (funcall thunk) nil)
     (condition (c) (and (typep c type) c))))
+
+(defun restart-when-signalled (thunk type restart)
+  "True when THUNK signals a condition of TYPE with RESTART active at that point
+(checked in the handler, before anything unwinds)."
+  (block nil
+    (handler-bind ((condition (lambda (c)
+                                (when (typep c type)
+                                  (return (and (find-restart restart c) t))))))
+      (funcall thunk)
+      nil)))
 
 (defun collect-warnings (thunk type)
   "(values result conditions): THUNK's value and every condition of TYPE it

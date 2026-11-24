@@ -12,7 +12,6 @@
 ;;;; for each of these WHATs that applies, in this order:
 ;;;;   "provenance and confidence"  an element has PROVENANCE or CONFIDENCE;
 ;;;;   "chord-symbol text"          an anchor's symbol has TEXT or DIALECT;
-;;;;   "chord-symbol kind"          CHORD-SYMBOL-TO-HARMONY lost a symbol's kind;
 ;;;;   "notated value"              a grace event or a tempo mark's beat unit has
 ;;;;                                no notated value (DURATION-DOTS gives NIL).
 ;;;;
@@ -156,8 +155,7 @@
 ;;;; Round trip. For a score s with no CHECK-SCORE issues,
 ;;;; (read-musicxml (write-musicxml s)) is SCORE-EQUAL to s after these changes,
 ;;;; which are all the format loses: PROVENANCE and CONFIDENCE NIL everywhere;
-;;;; chord symbols' TEXT and DIALECT NIL; a symbol whose kind was lost read back
-;;;; as HARMONY-TO-CHORD-SYMBOL reads its <harmony>; a grace with no notated
+;;;; chord symbols' TEXT and DIALECT NIL; a grace with no notated
 ;;;; value read back as 1/8, a tempo whose beat unit has none as (Q, 1/4); a
 ;;;; voice with no events on STAFF 1, and a voice with no pitched note with STEM
 ;;;; NIL; an empty part name NIL; SCORE-SPANNERS in the document order of their

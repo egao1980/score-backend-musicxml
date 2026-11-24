@@ -65,8 +65,10 @@
      "slur" ,(cat +m1+ "/note[2]/notations[1]/slur[1]"))
     ((,(cat "<attributes><clef><sign>percussion</sign></clef></attributes>" (n "C4" 4))) (,(n "C4" 4))
      "clef" ,(cat +m1+ "/attributes[2]/clef[1]"))
-    ((,(n "C4" 4) ,(cat "<attributes><clef><sign>F</sign><line>4</line></clef></attributes>" (n "C3" 4)))
-     (,(n "C4" 4) ,(n "C3" 4)) "clef" ,(cat +m2+ "/attributes[1]/clef[1]"))
+    ((,(cat "<attributes><clef><sign>G</sign><line>2</line></clef></attributes>" (n "C4" 4))
+      ,(cat "<attributes><clef><sign>F</sign><line>4</line></clef></attributes>" (n "C3" 4)))
+     (,(cat "<attributes><clef><sign>G</sign><line>2</line></clef></attributes>" (n "C4" 4)) ,(n "C3" 4))
+     "clef" ,(cat +m2+ "/attributes[1]/clef[1]"))
     ((,(cat "<attributes><transpose><diatonic>-1</diatonic><chromatic>-2</chromatic></transpose></attributes>" (n "C4" 4)))
      (,(n "C4" 4)) "transpose" ,(cat +m1+ "/attributes[2]/transpose[1]"))
     ((,(n "C4" 4) ,(cat "<attributes><key><fifths>0</fifths><mode>dorian</mode></key></attributes>" (n "D4" 4)))
@@ -94,7 +96,7 @@
      "inversion" ,(cat +m1+ "/harmony[1]/inversion[1]"))))
 
 (deftest-parametrize unsupported-elements
-    ((measures clean element position) :rows (quoted-rows +unsupported-cases+))
+    ((measures clean element position) :rows +unsupported-cases+)
   (let ((xml (mxml measures))
         (expected (read-musicxml (mxml clean))))
     (testing (format nil "<~A> signals musicxml-unsupported at ~A" element position)
@@ -103,7 +105,7 @@
         (ok (equal element (and c (musicxml-unsupported-element c))))
         (ok (equal position (and c (score-format-error-position c))))
         (ok (eq :musicxml (and c (score-format-error-format c))))
-        (ok (and c (find-restart 'skip-element c) t))))
+        (ok (restart-when-signalled (lambda () (read-musicxml xml)) 'musicxml-unsupported 'skip-element))))
     (testing "SKIP-ELEMENT reads on as if the element weren't there"
       (ok (same-content-p expected (handler-bind ((musicxml-unsupported #'skip-element))
                                      (read-musicxml xml)))))
@@ -157,11 +159,11 @@
     (,(mxml (list (cat (n "C4" 2) (bk 4) (n "D4" 4)))) ,(cat +m1+ "/backup[1]"))
     (,(mxml (list "<note><pitch><step>H</step><octave>4</octave></pitch><duration>4</duration></note>")) ,(cat +m1+ "/note[1]"))
     (,(mxml (list "<note><pitch><step>C</step><octave>four</octave></pitch><duration>4</duration></note>")) ,(cat +m1+ "/note[1]"))
-    (,(mxml (list (n "C4" 4)) :extra-parts '(("P2" ("<note><rest/><duration>4</duration></note>" "<note><rest/><duration>4</duration></note>"))))
+    (,(mxml (list (n "C4" 4)) :extra-parts '(("P2" ("<attributes><divisions>1</divisions></attributes><note><rest/><duration>4</duration></note>" "<note><rest/><duration>4</duration></note>"))))
      "/score-partwise[1]/part[2]")))
 
 (deftest-parametrize damaged-documents
-    ((xml position) :rows (quoted-rows +format-error-cases+))
+    ((xml position) :rows +format-error-cases+)
   (let ((c (signalled (lambda () (read-musicxml xml)) 'score-format-error)))
     (testing (format nil "a score-format-error at ~S" position)
       (ok (typep c 'score-format-error))

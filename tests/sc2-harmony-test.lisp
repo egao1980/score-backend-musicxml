@@ -1,5 +1,6 @@
-;;;; SC2 <harmony> ↔ chord symbol (src/harmony.lisp). Expected symbols are MT3
-;;;; readings of lead-sheet text (music-theory's PARSE-CHORD-SYMBOL, :POP).
+;;;; SC2 <harmony> ↔ chord symbol (src/harmony.lisp), adapters over
+;;;; music-theory's MusicXML kind mapping. Expected symbols are MT3 readings of
+;;;; lead-sheet text (music-theory's PARSE-CHORD-SYMBOL, :POP).
 
 (in-package #:score-backend-musicxml/tests)
 
@@ -28,12 +29,6 @@ type), BASS as (step alter)."
 
 (defun compact-xml (element)
   (xml-protocol:encode element :pretty nil :declaration nil))
-
-;;; The kind table ------------------------------------------------------------------
-
-(deftest harmony-kinds-copy-music-theory
-  (testing "+HARMONY-KINDS+ is music-theory's MusicXML kind table, row for row"
-    (ok (equal score-backend-musicxml::+harmony-kinds+ music-theory::+musicxml-kinds+))))
 
 ;;; Reading -------------------------------------------------------------------------
 
@@ -66,14 +61,16 @@ type), BASS as (step alter)."
      ("C" 0 "dominant" '((5 0 "subtract")) nil "C7(omit5)")
      ("C" 0 "major" '((3 0 "subtract")) nil "C(omit3)")
      ("C" 0 "major-sixth" '((9 0 "add")) nil "C6/9")
-     ("C" 0 "dominant" '((4 0 "add") (3 0 "subtract")) nil "C7sus4")
+     ("C" 0 "dominant" '((3 0 "subtract") (4 0 "add")) nil "C7sus4")
+     ("C" 0 "dominant" '((4 0 "add") (3 0 "subtract")) nil "C7(add4,omit3)")
      ("C" 0 "dominant-ninth" '((3 0 "subtract") (4 0 "add")) nil "C9sus4")
      ("A" 0 "major" '((3 0 "subtract") (4 0 "add")) '("E" 0) "Asus4/E")
      ("C" 0 "major" '((3 0 "subtract") (2 0 "add")) nil "Csus2")
      ("C" 0 "minor" '((3 0 "subtract") (4 0 "add")) nil "Cm(add4,omit3)")
-     ("G" 0 "suspended-fourth" '((7 0 "add")) nil "G7sus4")
-     ("G" 0 "suspended-fourth" '((7 1 "add")) nil "Gmaj7sus4")
      ("C" 0 "major-seventh" '((5 1 "alter")) nil "C+maj7")
+     ("C" 0 "minor-ninth" '((7 1 "alter")) nil "Cm(maj9)")
+     ("C" 0 "minor-ninth" '((5 -1 "alter")) nil "Cø9")
+     ("C" 0 "minor-seventh" '((5 -1 "alter")) nil "Cm7(b5)")
      ("F" 0 "major" () '("A" 0) "F/A")
      ("E" -1 "major" () '("B" -1) "Eb/Bb")
      ("F" 1 "minor-seventh" () '("C" 1) "F#m7/C#")
@@ -118,6 +115,8 @@ type), BASS as (step alter)."
      ("<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>9</degree-value><degree-alter>-2</degree-alter><degree-type>add</degree-type></degree></harmony>"
       "harmony" nil)
      ("<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>9</degree-value><degree-alter>0</degree-alter><degree-type>replace</degree-type></degree></harmony>"
+      "harmony" nil)
+     ("<harmony><root><root-step>G</root-step></root><kind>suspended-fourth</kind><degree><degree-value>7</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>"
       "harmony" nil))
   (testing (format nil "~A is unsupported (ELEMENT ~S)" xml element)
     (let ((c (signalled (lambda () (read-harmony xml)) 'musicxml-unsupported)))
@@ -130,12 +129,12 @@ type), BASS as (step alter)."
         (ok (equalp result (and skipped (cs skipped))))))))
 
 (deftest harmony-unsupported-cause
-  (testing "a combination MT3 rejects is unsupported, with the parse error as CAUSE"
+  (testing "a degree music-theory refuses is unsupported, with its error as CAUSE"
     (let ((c (signalled (lambda ()
                           (read-harmony (hx "C" 0 "dominant" :degrees '((7 0 "add")))))
                         'musicxml-unsupported)))
       (ok (equal "harmony" (and c (musicxml-unsupported-element c))))
-      (ok (typep (and c (score-format-error-cause c)) 'chord-symbol-parse-error)))))
+      (ok (typep (and c (score-format-error-cause c)) 'music-theory-error)))))
 
 (deftest harmony-format-errors
   (testing "a harmony without a kind is a score-format-error"
@@ -164,19 +163,21 @@ type), BASS as (step alter)."
      ("C9(#11)" "<harmony><root><root-step>C</root-step></root><kind>dominant-ninth</kind><degree><degree-value>11</degree-value><degree-alter>1</degree-alter><degree-type>add</degree-type></degree></harmony>" ())
      ("C9" "<harmony><root><root-step>C</root-step></root><kind>dominant-ninth</kind></harmony>" ())
      ("Csus4" "<harmony><root><root-step>C</root-step></root><kind>suspended-fourth</kind></harmony>" ())
-     ("C7sus4" "<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>4</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
-     ("C9sus4" "<harmony><root><root-step>C</root-step></root><kind>dominant-ninth</kind><degree><degree-value>4</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
+     ("C7sus4" "<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree><degree><degree-value>4</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>" ())
+     ("C9sus4" "<harmony><root><root-step>C</root-step></root><kind>dominant-ninth</kind><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree><degree><degree-value>4</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>" ())
+     ("C(add4,omit3)" "<harmony><root><root-step>C</root-step></root><kind>major</kind><degree><degree-value>4</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
      ("C+maj7" "<harmony><root><root-step>C</root-step></root><kind>major-seventh</kind><degree><degree-value>5</degree-value><degree-alter>1</degree-alter><degree-type>alter</degree-type></degree></harmony>" ())
      ("C6/9" "<harmony><root><root-step>C</root-step></root><kind>major-sixth</kind><degree><degree-value>9</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>" ())
      ("C7alt" "<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>9</degree-value><degree-alter>-1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>9</degree-value><degree-alter>1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>11</degree-value><degree-alter>1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>13</degree-value><degree-alter>-1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>5</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
      ("Cm7(b5)" "<harmony><root><root-step>C</root-step></root><kind>half-diminished</kind></harmony>" ())
      ("Cm(b5)" "<harmony><root><root-step>C</root-step></root><kind>diminished</kind></harmony>" ())
-     ("C5(add#4,addb6,omit5)" "<harmony><root><root-step>C</root-step></root><kind>Italian</kind></harmony>" ())
-     ("C5(omit5)" "<harmony><root><root-step>C</root-step></root><kind>pedal</kind></harmony>" ())
+     ("C5(add#4,addb6,omit5)" "<harmony><root><root-step>C</root-step></root><kind>power</kind><degree><degree-value>4</degree-value><degree-alter>1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>6</degree-value><degree-alter>-1</degree-alter><degree-type>add</degree-type></degree><degree><degree-value>5</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
+     ("C5(omit5)" "<harmony><root><root-step>C</root-step></root><kind>power</kind><degree><degree-value>5</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
      ("Cadd9" "<harmony><root><root-step>C</root-step></root><kind>major</kind><degree><degree-value>9</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>" ())
      ("C7(omit3)" "<harmony><root><root-step>C</root-step></root><kind>dominant</kind><degree><degree-value>3</degree-value><degree-alter>0</degree-alter><degree-type>subtract</degree-type></degree></harmony>" ())
      ("N.C." "<harmony><root><root-step>C</root-step></root><kind>none</kind></harmony>" ())
-     ("Cm(maj9)" "<harmony><root><root-step>C</root-step></root><kind>major-minor</kind><degree><degree-value>9</degree-value><degree-alter>0</degree-alter><degree-type>add</degree-type></degree></harmony>" '("chord-symbol kind")))
+     ("Cm(maj9)" "<harmony><root><root-step>C</root-step></root><kind>minor-ninth</kind><degree><degree-value>7</degree-value><degree-alter>1</degree-alter><degree-type>alter</degree-type></degree></harmony>" ())
+     ("Cø9" "<harmony><root><root-step>C</root-step></root><kind>minor-ninth</kind><degree><degree-value>5</degree-value><degree-alter>-1</degree-alter><degree-type>alter</degree-type></degree></harmony>" ()))
   (testing (format nil "~A writes as ~A" text xml)
     (multiple-value-bind (element lost-now) (chord-symbol-to-harmony (cs text))
       (ok (equal xml (compact-xml element)))
@@ -189,7 +190,7 @@ type), BASS as (step alter)."
   (testing "TEXT or DIALECT is lost"
     (ok (equal '("chord-symbol text")
                (nth-value 1 (chord-symbol-to-harmony (parse-chord-symbol "C7" :dialect :jazz)))))
-    (ok (equal '("chord-symbol text" "chord-symbol kind")
+    (ok (equal '("chord-symbol text")
                (nth-value 1 (chord-symbol-to-harmony (parse-chord-symbol "Cm(maj9)"))))))
   (testing "a symbol that isn't well-formed is a music-theory-error"
     (ok (signalled (lambda () (chord-symbol-to-harmony (make-chord-symbol :root (parse-pitch-class "C"))))
@@ -204,6 +205,7 @@ type), BASS as (step alter)."
      ("C13(#11)") ("C9(#11)") ("C9(b9)") ("Cadd9") ("Cm(add9)") ("C6/9") ("Cm6/9") ("C7alt")
      ("C(add2)") ("C7(omit3)") ("C(omit3)") ("C(b5)") ("C(b9)") ("F#m7/C#") ("Bb7(b9)/D")
      ("Ebmaj7/G") ("Asus4/E") ("Gmaj7sus4") ("C5(add2,add#4,addb6,omit5)")
-     ("Cm(add#4,addb6,omit5)") ("C5(#9,add#4,add#6,omit5)") ("N.C."))
+     ("Cm(add#4,addb6,omit5)") ("C5(#9,add#4,add#6,omit5)") ("N.C.") ("Cm(maj9)") ("Cø9") ("Cdim9")
+     ("C+9") ("C(add4,omit3)") ("C7(add4,omit3)"))
   (testing (format nil "~A survives <harmony>" text)
     (ok (equalp (harmony-to-chord-symbol (chord-symbol-to-harmony (cs text))) (cs text)))))

@@ -30,7 +30,9 @@
       (ok (score-equal expected (read-musicxml (file-string file))))
       (ok (score-equal expected (read-musicxml (file-octets file))))
       (ok (score-equal expected (with-input-from-string (in (file-string file)) (read-musicxml in))))
-      (ok (score-equal expected (musicxml-to-score (xml-protocol:decode (file-string file))))))
+      (ok (score-equal expected (musicxml-to-score
+                                 (handler-bind ((xml-protocol:xml-entity-error #'continue))
+                                   (xml-protocol:decode (file-string file)))))))
     (testing "keyword values are checked"
       (ok (signalled (lambda () (read-musicxml (file-string file) :split-voices :always)) 'type-error))
       (ok (signalled (lambda () (read-musicxml (file-string file) :unsupported :ignore)) 'type-error)))))

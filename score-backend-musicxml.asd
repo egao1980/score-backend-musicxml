@@ -3,7 +3,7 @@
   :description "MusicXML 4.0 (.musicxml, .mxl) reader and writer for score-protocol"
   :author "egao1980"
   :license "MIT"
-  :depends-on ((:version "score-protocol" "0.1.0") (:version "music-theory" "0.4.0")
+  :depends-on ((:version "score-protocol" "0.1.0") (:version "music-theory" "0.5.1")
                "fset" "xml-protocol" "xml-backend-native" "serdes-protocol"
                "compression-protocol" "compression-backend-chipz")
   :pathname "src"
@@ -19,7 +19,7 @@
   :in-order-to ((test-op (test-op "score-backend-musicxml/tests"))))
 
 (defsystem "score-backend-musicxml/tests"
-  :depends-on ("score-backend-musicxml" "rove" "process-backend-uiop")
+  :depends-on ("score-backend-musicxml" (:version "rove" "0.11.1") "process-backend-uiop")
   :pathname "tests"
   :serial t
   :components ((:file "package")

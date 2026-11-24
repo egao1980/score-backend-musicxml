@@ -15,7 +15,7 @@
     (ok (equal (quiet-write (sc0-score name)) (file-string (golden-name name))))))
 
 (deftest-parametrize lossy-conversions
-    ((name lost) :rows (quoted-rows (read-forms-file "sc2-lost.sexp")))
+    ((name lost) :rows (read-forms-file "sc2-lost.sexp"))
   (testing (format nil "~A warns ~S" name lost)
     (multiple-value-bind (text warnings)
         (collect-warnings (lambda () (write-musicxml (sc0-score name))) 'lossy-conversion)
@@ -24,7 +24,7 @@
       (ok (every (lambda (w) (eq :musicxml (lossy-conversion-format w))) warnings)))))
 
 (deftest more-lossy-conversions
-  (testing "a symbol whose kind MusicXML lacks; a grace note with no notated value"
+  (testing "a grace note with no notated value (the symbol, which no kind names, is not lost)"
     (let ((s (sexp-to-score
               '(:score :measures ((:measure :time "4/4" :key "C major"))
                 :parts ((:part :staves ((:staff))
@@ -32,7 +32,7 @@
                                                       (:note :pitch "C5" :duration 1)))))))
                 :chord-symbols ((:chord-symbol :bar 1 :offset 0
                                  :symbol (:root "C" :quality :minor-major-7 :extensions (9))))))))
-      (ok (equal '("chord-symbol kind" "notated value")
+      (ok (equal '("notated value")
                  (mapcar #'lossy-conversion-what
                          (nth-value 1 (collect-warnings (lambda () (write-musicxml s)) 'lossy-conversion))))))))
 

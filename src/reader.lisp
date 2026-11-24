@@ -152,9 +152,13 @@
 ;;;;                   <breath-mark> (any content) the BREATH-MARK.
 ;;;;   <fermata>       the FERMATA, SHAPE by content (+FERMATA-SHAPES+, empty =
 ;;;;                   :NORMAL; other shapes unsupported, ELEMENT "fermata"). A
-;;;;                   second fermata on one event: unsupported, ELEMENT "fermata".
+;;;;                   second fermata in one <note>: unsupported, ELEMENT "fermata".
 ;;;;   <dynamics>      the event's DYNAMIC, as for directions below.
-;;;; A second breath mark on an event is unsupported, ELEMENT "breath-mark".
+;;;; A second breath mark in one <note> is unsupported, ELEMENT "breath-mark".
+;;;; Marks on several notes of one chord count once: the event's FERMATA and
+;;;; BREATH-MARK are the first among its notes, and an articulation of a kind the
+;;;; event already has, from a later note, is dropped silently (some programs
+;;;; write a chord's marks on every notehead).
 ;;;;
 ;;;; Lyrics (<lyric> on any note of the event, in document order):
 ;;;;   VERSE     the number attribute: a decimal integer >= 1, else the integer

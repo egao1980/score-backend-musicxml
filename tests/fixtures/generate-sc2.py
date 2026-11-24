@@ -6,7 +6,8 @@ Three jobs, all independent of the Lisp code:
 
 1. Golden files. tests/fixtures/sc0/*.sexp are the SC0 fixture scores (copied
    from score-protocol 0.1.0). This script is a second implementation of the
-   writer rules in src/writer.lisp and src/harmony.lisp: it writes each score as
+   writer rules in src/writer.lisp, with music-theory 0.5.1's MusicXML kind
+   rules (CHORD-SYMBOL-MUSICXML-KIND) for <harmony>: it writes each score as
    tests/fixtures/golden/<name>.musicxml, byte for byte as WRITE-MUSICXML must.
 2. The corpus. Short public-domain tunes, re-encoded by us from the data below,
    written as a notation program would write them (no ids, layout and playback
@@ -391,17 +392,6 @@ QUALITY_DEGREES = {"major": (1, 3, 5), "minor": (1, 3, 5), "diminished": (1, 3, 
                    "major-6": (1, 3, 5, 6), "minor-6": (1, 3, 5, 6), "power": (1, 5)}
 
 
-def tone_degrees(base):
-    """The degrees of CHORD-TONES of a canonical value."""
-    quality, ext, sus, alts, added, omitted = base
-    degrees = set(QUALITY_DEGREES[quality]) | set(ext)
-    if sus:
-        degrees.discard(3)
-        degrees.add(sus)
-    degrees |= {d for d, _ in alts} | {d for d, _ in added}
-    return degrees - set(omitted)
-
-
 def pairs(x):
     return tuple(sorted((int(d), int(a)) for d, a in (x or ())))
 
@@ -419,8 +409,18 @@ def step_alter(parent, prefix, pc):
     return el
 
 
+STRUCTURAL = {  # music-theory +MUSICXML-STRUCTURAL-DEGREES+: quality → (base, degrees)
+    "diminished-7": ("minor-7", [(5, -1, "alter"), (7, -1, "alter")]),
+    "minor-major-7": ("minor-7", [(7, 1, "alter")]),
+    "half-diminished-7": ("minor-7", [(5, -1, "alter")]),
+    "augmented-7": ("dominant-7", [(5, 1, "alter")]),
+    "augmented-major-7": ("major-7", [(5, 1, "alter")]),
+}
+
+
 def chord_symbol_to_harmony(sym, hid=None):
-    """(element, lost) as CHORD-SYMBOL-TO-HARMONY."""
+    """(element, lost) as CHORD-SYMBOL-TO-HARMONY, with the kind and degrees of
+    music-theory's CHORD-SYMBOL-MUSICXML-KIND (rules X1-X3)."""
     lost = []
     if sym.get("text") or sym.get("dialect"):
         lost.append("chord-symbol text")
@@ -433,42 +433,33 @@ def chord_symbol_to_harmony(sym, hid=None):
     x = tuple(int(e) for e in sym.get("extensions") or ())
     s = sym.get("suspension")
     s = int(s) if s else None
-    alts, added, omitted = pairs(sym.get("alterations")), pairs(sym.get("added")), \
-        tuple(sorted(int(d) for d in sym.get("omitted") or ()))
-    if q == "augmented-major-7":
-        q, alts = "major-7", tuple(sorted(alts + ((5, 1),)))
+    alts, added = pairs(sym.get("alterations")), pairs(sym.get("added"))
+    omitted = tuple(int(d) for d in sym.get("omitted") or ())
 
-    def best(quality, ext, sus):
-        cands = [(kind, b) for kind, b in KINDS
-                 if b[0] == quality and b[1] == ext and b[2] == sus
-                 and set(b[3]) <= set(alts) and set(b[4]) <= set(added) and set(b[5]) <= set(omitted)]
-        if not cands:
-            return None
-        top = max(len(b[3]) + len(b[4]) + len(b[5]) for _, b in cands)
-        return next((k, b) for k, b in cands if len(b[3]) + len(b[4]) + len(b[5]) == top)
+    def plain(quality, ext):
+        return next((k for k, b in KINDS if b[0] == quality and b[1] == ext and b[2] is None
+                     and not (b[3] or b[4] or b[5])), None)
 
-    ext_degrees, sus_degrees = [], []
-    found = best(q, x, s)
-    if not found and s:
-        found = best(q, x, None)
-        sus_degrees = [(s, 0, "add"), (3, 0, "subtract")] if found else []
-    if not found:
-        ext_degrees = [(e, 0, "add") for e in x]
-        lost.append("chord-symbol kind")
-        found = best(q, (), s)
-        if not found and s:
-            found = best(q, (), None)
-            sus_degrees = [(s, 0, "add"), (3, 0, "subtract")]
-    kind, b = found
+    degrees = []
+    if q == "major" and s and not x:                       # X2: the suspended kinds
+        kind, written_sus = ("suspended-second" if s == 2 else "suspended-fourth"), True
+    else:
+        written_sus = False
+        kind = plain(q, x)
+        if kind is None:                                   # X2: structural degrees
+            base, structural = STRUCTURAL[q]
+            kind = plain(base, x)
+            degrees += structural
+    if s and not written_sus:                              # X3
+        degrees += [(3, 0, "subtract"), (s, 0, "add")]
+    degrees += [(d, a, "alter" if d == 5 or d in x else "add") for d, a in alts]
+    degrees += [(d, a, "add") for d, a in added]
+    degrees += [(d, 0, "subtract") for d in omitted]
     h.add(step_alter(h, "root", sym["root"]))
     h.add(text_el("kind", kind))
     if sym.get("bass"):
         h.add(step_alter(h, "bass", sym["bass"]))
-    degs = tone_degrees(b)
-    rest = [(d, a, "alter" if d in degs else "add") for d, a in alts if (d, a) not in b[3]]
-    rest += [(d, a, "add") for d, a in added if (d, a) not in b[4]]
-    rest += [(d, 0, "subtract") for d in omitted if d not in b[5]]
-    for d, a, t in ext_degrees + sus_degrees + rest:
+    for d, a, t in degrees:
         h.add(degree_el(d, a, t))
     return h, lost
 
@@ -562,7 +553,7 @@ def write_score(score):
         root.add(write_part(score, p, pi == 0, bt, spanners, tie_ends, lost))
     if all_elements_have(score, "provenance") or all_elements_have(score, "confidence"):
         lost.add("provenance and confidence")
-    order = ["provenance and confidence", "chord-symbol text", "chord-symbol kind", "notated value"]
+    order = ["provenance and confidence", "chord-symbol text", "notated value"]
     return document(root), [w for w in order if w in lost]
 
 
@@ -878,7 +869,7 @@ def model_facts(score):
             f, mode = key_signature(m["key"])
             keys.append((i, f, Kw(mode)))
         if m.get("time"):
-            times.append((i, m["time"]))
+            times.append([i, m["time"]])
         for t in m["tempo"]:
             if t.get("bpm"):
                 tempos.append((i, Fraction(t.get("offset") or 0), Fraction(t["bpm"]), Fraction(t["beat-unit"])))
@@ -960,7 +951,7 @@ def m21_facts(path):
                 for ks in m.getElementsByClass(key.KeySignature):
                     keys.append((mi, ks.sharps, Kw(getattr(ks, "mode", None) or "major")))
                 for ts in m.getElementsByClass(meter.TimeSignature):
-                    times.append((mi, ts.ratioString))
+                    times.append([mi, ts.ratioString])
                 for mm in m.recurse().getElementsByClass(tempo.MetronomeMark):
                     if mm.number is not None:
                         tempos.append((mi, q(mm.getOffsetInHierarchy(m)), Fraction(mm.number),
