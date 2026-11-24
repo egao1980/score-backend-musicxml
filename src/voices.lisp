@@ -17,11 +17,14 @@
 ;;;;            inserted right after U in the part's voices.
 ;;;;   |V| = 2  U and L are the two: the one with STEM :UP is U when their stems
 ;;;;            are :UP and :DOWN, else the first in part order is U.
-;;;; U's STEM becomes :UP and L's :DOWN. Then each measure in which L's voice
-;;;; measure is empty and U's holds at least one CHORD-EVENT is SPLIT: every
-;;;; event E of U's voice measure gives one event to U and one to L, in order.
-;;;; Other measures are unchanged. When no measure of a staff splits, a new L is
-;;;; not added and the stems are unchanged.
+;;;; The staff SPLITS when, in at least one measure, L's voice measure is empty
+;;;; and U's holds a CHORD-EVENT. Then U's STEM becomes :UP and L's :DOWN, and
+;;;; each measure in which L's voice measure is empty and U's is not is SPLIT:
+;;;; every event E of U's voice measure gives one event to U and one to L, in
+;;;; order. So a measure of single notes and rests on a split staff is split
+;;;; too: in hymnal layout that is a measure the two voices sing in unison,
+;;;; printed with one notehead. Other measures are unchanged. When the staff
+;;;; doesn't split, a new L is not added and the stems are unchanged.
 ;;;;   CHORD-EVENT with notes sorted by pitch (PITCH-MIDI, then
 ;;;;      PITCH-DIATONIC-INDEX, then chord order), h the highest and l the lowest:
 ;;;;      U gets a NOTE-EVENT with E's id and h's pitch, accidental and tie; L
@@ -143,6 +146,19 @@ header). COUNTERPARTS maps a unison-copied note event's id to its copy's handle.
       (:rest
        (values event (%put (%without-ids event) :lyrics nil))))))
 
+(defun %split-measures (upper-measures lower-measures)
+  "The indices (from 0, ascending) of the measures that are SPLIT on a staff
+whose U has the voice measures UPPER-MEASURES and L LOWER-MEASURES, lists of
+event forms of one length (NIL for an empty voice measure); NIL when the staff
+doesn't split (file header)."
+  (loop for upper in upper-measures
+        for lower in lower-measures
+        for j from 0
+        when (and upper (null lower))
+          collect j into splits
+          and count (find :chord upper :key #'car) into chords
+        finally (return (and (plusp chords) splits))))
+
 (defun %split-staff (voices split measure-count)
   "((original . replacement) ...) for VOICES, the forms of one staff's voices in
 part order, when the staff splits (file header); a new L has original NIL."
@@ -155,11 +171,7 @@ part order, when the staff splits (file header); a new L has original NIL."
             voices)
       (let* ((upper-measures (%get upper :measures))
              (lower-measures (if lower (%get lower :measures) (make-list measure-count)))
-             (splits (loop for events in upper-measures
-                           for other in lower-measures
-                           for j from 0
-                           when (and (null other) (find :chord events :key #'car))
-                             collect j)))
+             (splits (%split-measures upper-measures lower-measures)))
         (when splits
           (let ((counterparts (make-hash-table :test 'equal)))
             (dolist (j splits)

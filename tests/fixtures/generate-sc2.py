@@ -1034,15 +1034,16 @@ NOTE_RE = re.compile(r'^(?P<grace>[gG]/)?(?P<trip>3/)?(?P<body>\[[^\]]+\]|[A-G](
                      r'(?::(?P<dur>\d+)(?P<dots>\.*))?(?P<flags>[~()FBsatm]*)$')
 
 
-def parse_music(text, bars_info):
-    """Measures of events (dicts as load_event makes them) and the hairpins."""
+def parse_music(text, bars_info, prefix="t"):
+    """Measures of events (dicts as load_event makes them) and the hairpins. Ids
+    are PREFIX and a serial, so the voices of one tune never share one."""
     measures, spanners = [], []
     open_slur, open_wedge, pending = None, None, {}
     serial = [0]
 
     def tid():
         serial[0] += 1
-        return f"t{serial[0]}"
+        return f"{prefix}{serial[0]}"
 
     chunks = [c.strip() for c in text.split("|")]
     for mi, chunk in enumerate(chunks):
@@ -1167,7 +1168,8 @@ def tune_score(t):
     bt = bars(score)
     parsed = []
     for p in t["parts"]:
-        parsed.append([parse_music(v["music"], bt) for v in p["voices"]])
+        parsed.append([parse_music(v["music"], bt, f"p{len(parsed) + 1}v{k}t")
+                       for k, v in enumerate(p["voices"], 1)])
     # A measure whose content isn't its meter's bar (a pickup, the bar that
     # completes it) states its length, as the reader derives it.
     for i, m in enumerate(measures):

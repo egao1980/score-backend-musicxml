@@ -143,11 +143,12 @@
 ;;;;
 ;;;; Notations, on the note's event (any note of a chord gives the chord's):
 ;;;;   <slur>          per part, by number (default 1), in document order: a
-;;;;                   start opens; a stop closes the latest open slur of that
-;;;;                   number. A SPANNER :SLUR from the start note's event to the
-;;;;                   stop note's. A stop with nothing open, and a slur still open
-;;;;                   at the end of the part: unsupported, ELEMENT "slur".
-;;;;                   type="continue" is ignored.
+;;;;                   start opens; a stop closes the open slur CLOSING picks
+;;;;                   (below), the stop's voice being its note's voice value. A
+;;;;                   SPANNER :SLUR from the start note's event to the stop
+;;;;                   note's. A stop with no slur of its number open, and a slur
+;;;;                   still open at the end of the part: unsupported, ELEMENT
+;;;;                   "slur". type="continue" is ignored.
 ;;;;   <articulations> each child by +ARTICULATION-ELEMENTS+ an ARTICULATION;
 ;;;;                   <breath-mark> (any content) the BREATH-MARK.
 ;;;;   <fermata>       the FERMATA, SHAPE by content (+FERMATA-SHAPES+, empty =
@@ -202,13 +203,14 @@
 ;;;;               unsupported, ELEMENT "dynamics".
 ;;;;   <wedge>     type "crescendo" or "diminuendo" opens a hairpin SPANNER
 ;;;;               (:CRESCENDO, :DIMINUENDO) whose START is found by ATTACHMENT;
-;;;;               type "stop" closes the latest open wedge of the part with its
-;;;;               number (default 1); END is START when the stop's absolute
-;;;;               position is START's onset, else the last event, read from a
-;;;;               <note>, of the stop's target voice whose absolute onset is
-;;;;               before the stop's position. A stop with nothing open, no END,
-;;;;               or a wedge still open at the end of the part: unsupported,
-;;;;               ELEMENT "wedge".
+;;;;               type "stop" closes the open wedge of the part with its number
+;;;;               (default 1) that CLOSING picks, the stop's voice being its
+;;;;               target voice (ATTACHMENT); END is START when the stop's
+;;;;               absolute position is START's onset, else the last event, read
+;;;;               from a <note>, of the stop's target voice whose absolute
+;;;;               onset is before the stop's position. A stop with no wedge of its
+;;;;               number open, no END, or a wedge still open at the end of the
+;;;;               part: unsupported, ELEMENT "wedge".
 ;;;;               type "continue" is ignored.
 ;;;;   <words>     not part of a jump or a tempo: unsupported, ELEMENT "words"
 ;;;;               (free text has no place in the model).
@@ -223,6 +225,14 @@
 ;;;; that, on the last event of the target voice in the measure that starts at or
 ;;;; before the position; failing that it is unsupported (ELEMENT "dynamics" or
 ;;;; "wedge").
+;;;; CLOSING. Among the slurs (wedges) of the part that are open and have the
+;;;; stop's number, the stop closes the one opened last, in document order,
+;;;; whose start event is in the stop's voice; when none of them is, the one
+;;;; opened last. Two open spanners share a number only in a file that numbers
+;;;; them per voice or per staff, as some notation programs do (MusicXML asks
+;;;; for distinct numbers while they overlap): there each stop closes its own
+;;;; voice's spanner. With distinct numbers at most one is open, and the voice
+;;;; plays no part.
 ;;;;
 ;;;; Chord symbols. The <harmony> elements of the first part that has any (those
 ;;;; of other parts are dropped silently) become CHORD-SYMBOL-ANCHORs at (bar .
@@ -723,14 +733,27 @@ its %NOTE, NIL for a rest."
             ((string= name "dynamics") (%read-dynamics pw kid :event event))
             ((string= name "fermata") (%read-fermata kid event note-loc))))))
 
+(defun %closing-entry (entries number in-voice-p)
+  "The entry a stop of NUMBER closes (file header, CLOSING), or NIL. ENTRIES are
+the open slurs or wedges of the part, the one opened last first, each a list
+whose first element is its number (a string); IN-VOICE-P is true of an entry
+whose start event is in the stop's voice."
+  (or (find-if (lambda (entry)
+                 (and (string= number (first entry)) (funcall in-voice-p entry)))
+               entries)
+      (assoc number entries :test #'string=)))
+
 (defun %read-slur (pw loc event)
-  "A <slur>: a start opens one of its number, a stop closes the latest open one."
+  "A <slur>: a start opens one of its number, a stop closes the open one CLOSING
+picks."
   (let ((type (%attr loc "type"))
         (number (or (%attr loc "number") "1")))
     (cond ((equal type "start")
            (push (list number event loc (incf (%pw-doc pw))) (%pw-open-slurs pw)))
           ((equal type "stop")
-           (let ((open (assoc number (%pw-open-slurs pw) :test #'string=)))
+           (let ((open (%closing-entry (%pw-open-slurs pw) number
+                                       (lambda (entry)
+                                         (string= (%event-voice (second entry)) (%event-voice event))))))
              (if open
                  (progn
                    (setf (%pw-open-slurs pw) (remove open (%pw-open-slurs pw)))
@@ -1264,12 +1287,15 @@ is before POSITION, or NIL."
           (setf best event))))))
 
 (defun %link-wedges (pw starts)
-  "The hairpins of PW: starts by ATTACHMENT, stops closing the latest open wedge
-of their number (file header, <wedge>)."
+  "The hairpins of PW: starts by ATTACHMENT, stops closing the open wedge of
+their number CLOSING picks (file header, <wedge>)."
   (let ((open '()))
     (dolist (wedge (reverse (%pw-wedges pw)))
       (if (eq (%wedge-kind wedge) :stop)
-          (let ((entry (assoc (%wedge-number wedge) open :test #'string=)))
+          (let* ((voice (%target-voice pw (%wedge-voice wedge) (%wedge-staff wedge)))
+                 (entry (%closing-entry open (%wedge-number wedge)
+                                        (lambda (entry)
+                                          (eq (%event-vc (%span-start (second entry))) voice)))))
             (if (null entry)
                 (%unsupported "wedge" (%wedge-loc wedge) "a wedge stop with no wedge open")
                 (let* ((span (second entry))
