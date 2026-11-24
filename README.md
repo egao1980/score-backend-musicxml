@@ -2,7 +2,7 @@
 
 Reads and writes MusicXML 4.0 partwise, plain (`.musicxml`) and compressed (`.mxl`), for [score-protocol](https://github.com/egao1980/score-protocol). XML goes through [xml-protocol](https://github.com/egao1980/xml-protocol) (the DOCTYPE is written, never fetched), archives through [compression-protocol](https://github.com/egao1980/compression-protocol), and chord symbols are [music-theory](https://github.com/egao1980/music-theory) values.
 
-**Status:** SC2 (0.1.0) implemented; 0.1.1 bug-fix contract (`%sc21-pending` stubs: spanner numbers reused across voices, unison measures in `split-voices`). The exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
+**Status:** SC2 (0.1.0) and the 0.1.1 bug fixes implemented: a slur or wedge stop closes the open spanner of its number in its own voice first (#3), and once a staff splits, `split-voices` splits its unison and rest measures too (#4). The exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
 
 | Function | Does |
 |----------|------|

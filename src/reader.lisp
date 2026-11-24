@@ -738,8 +738,10 @@ its %NOTE, NIL for a rest."
 the open slurs or wedges of the part, the one opened last first, each a list
 whose first element is its number (a string); IN-VOICE-P is true of an entry
 whose start event is in the stop's voice."
-  (declare (ignore entries number in-voice-p))
-  (%sc21-pending '%closing-entry))
+  (or (find-if (lambda (entry)
+                 (and (string= number (first entry)) (funcall in-voice-p entry)))
+               entries)
+      (assoc number entries :test #'string=)))
 
 (defun %read-slur (pw loc event)
   "A <slur>: a start opens one of its number, a stop closes the open one CLOSING

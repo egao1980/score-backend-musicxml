@@ -151,8 +151,13 @@ header). COUNTERPARTS maps a unison-copied note event's id to its copy's handle.
 whose U has the voice measures UPPER-MEASURES and L LOWER-MEASURES, lists of
 event forms of one length (NIL for an empty voice measure); NIL when the staff
 doesn't split (file header)."
-  (declare (ignore upper-measures lower-measures))
-  (%sc21-pending '%split-measures))
+  (loop for upper in upper-measures
+        for lower in lower-measures
+        for j from 0
+        when (and upper (null lower))
+          collect j into splits
+          and count (find :chord upper :key #'car) into chords
+        finally (return (and (plusp chords) splits))))
 
 (defun %split-staff (voices split measure-count)
   "((original . replacement) ...) for VOICES, the forms of one staff's voices in
