@@ -2,7 +2,7 @@
 
 Reads and writes MusicXML 4.0 partwise, plain (`.musicxml`) and compressed (`.mxl`), for [score-protocol](https://github.com/egao1980/score-protocol). XML goes through [xml-protocol](https://github.com/egao1980/xml-protocol) (the DOCTYPE is written, never fetched), archives through [compression-protocol](https://github.com/egao1980/compression-protocol), and chord symbols are [music-theory](https://github.com/egao1980/music-theory) values.
 
-**Status:** SC2 (0.1.0) implemented. The exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
+**Status:** SC2 (0.1.0) implemented; 0.1.1 bug-fix contract (`%sc21-pending` stubs: spanner numbers reused across voices, unison measures in `split-voices`). The exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
 
 | Function | Does |
 |----------|------|
@@ -19,7 +19,7 @@ Loading the system registers the serdes-protocol formats `:musicxml` and `:mxl`.
 cl-repo test --system score-backend-musicxml
 ```
 
-The XSD tests run `xmllint` when `MUSICXML_XSD` names a local copy of the MusicXML 4.0 `musicxml.xsd` with `xml.xsd`, `xlink.xsd` and `catalog.xml` beside it (github.com/w3c/musicxml, `schema/` at tag v4.0); otherwise they are skipped. Fixtures and their provenance: [tests/fixtures/PROVENANCE.md](tests/fixtures/PROVENANCE.md).
+The XSD tests run `xmllint` when `MUSICXML_XSD` names a local copy of the MusicXML 4.0 `musicxml.xsd` with `xml.xsd`, `xlink.xsd` and `catalog.xml` beside it (github.com/w3c/musicxml, `schema/` at tag v4.0); otherwise they are skipped. CI's `xsd` job fetches those four files, checks their SHA-256 values and runs them on Ubuntu; the schema is not in this repository (W3C Community Final Specification Agreement). Fixtures and their provenance: [tests/fixtures/PROVENANCE.md](tests/fixtures/PROVENANCE.md).
 
 ## License
 

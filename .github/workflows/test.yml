@@ -12,3 +12,66 @@ jobs:
     uses: egao1980/cl-repository/.github/workflows/test-system.yml@main
     with:
       system: score-backend-musicxml
+      # Ubuntu is the xsd job below.
+      os-json: '["macos-latest","windows-latest"]'
+
+  # The Ubuntu leg, with xmllint and the MusicXML 4.0 schema, so the
+  # written-scores-validate rows run instead of skipping (#2). test-system.yml
+  # has no step before its test phase, so this job makes the same setup-lisp
+  # and ci calls itself. The schema is not vendored (W3C Community Final
+  # Specification Agreement): its four files are fetched at tag v4.0 and
+  # checked against the SHA-256 values below.
+  xsd:
+    runs-on: ubuntu-latest
+    container: ghcr.io/egao1980/cl-repository/ci-base:latest
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: read
+      packages: read
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MUSICXML_SCHEMA_URL: https://raw.githubusercontent.com/w3c/musicxml/v4.0/schema
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: egao1980/cl-repository/.github/actions/setup-lisp@main
+
+      - name: Install xmllint
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libxml2-utils
+          xmllint --version
+
+      - name: Fetch the MusicXML 4.0 schema
+        run: |
+          dir="${RUNNER_TEMP}/musicxml-xsd"
+          mkdir -p "${dir}"
+          cd "${dir}"
+          for f in musicxml.xsd xml.xsd xlink.xsd catalog.xml; do
+            curl -fsSL --retry 5 --retry-all-errors -o "${f}" "${MUSICXML_SCHEMA_URL}/${f}"
+          done
+          sha256sum -c - <<'EOF'
+          bfe37ed25a9ec00e6f2591d53df260b84efe12aed209ba3ac0a76f9287665a99  musicxml.xsd
+          616a3077df5cfc954ac74a75abe9697b95eef7a85dbe09367d995a483e840eb5  xml.xsd
+          6e601f8eeb41618b50e4c7f944dff754e57ea43b602755470dda24c9c2f6df92  xlink.xsd
+          c65df54cbf1c6bd73a335d47c0ec292c4c1d7ecca20dbb6e36388bb169c71245  catalog.xml
+          EOF
+          echo "MUSICXML_XSD=${dir}/musicxml.xsd" >> "${GITHUB_ENV}"
+
+      # The tests skip their XSD rows when this setup is broken; fail here instead.
+      - name: Validate a golden against the schema
+        run: |
+          XML_CATALOG_FILES="$(dirname "${MUSICXML_XSD}")/catalog.xml" \
+            xmllint --nonet --noout --schema "${MUSICXML_XSD}" tests/fixtures/golden/sc0-satb.musicxml
+
+      - uses: egao1980/cl-repository/.github/actions/ci@main
+        with:
+          phase: install
+          system: score-backend-musicxml
+
+      - uses: egao1980/cl-repository/.github/actions/ci@main
+        with:
+          phase: test
+          system: score-backend-musicxml

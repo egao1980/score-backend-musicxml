@@ -26,3 +26,8 @@ travel as MusicXML id attributes. Also registers the serdes-protocol formats
    #:musicxml-serdes-backend #:mxl-serdes-backend))
 
 (in-package #:score-backend-musicxml)
+
+(defun %sc21-pending (name)
+  "Contract stub for the 0.1.1 bug fixes (SC2.1). Every call is replaced by the
+implementation, then this function is deleted."
+  (error "score-backend-musicxml SC2.1 pending: ~A" name))

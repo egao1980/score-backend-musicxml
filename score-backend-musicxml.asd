@@ -1,5 +1,5 @@
 (defsystem "score-backend-musicxml"
-  :version "0.1.0"
+  :version "0.1.1"
   :description "MusicXML 4.0 (.musicxml, .mxl) reader and writer for score-protocol"
   :author "egao1980"
   :license "MIT"
@@ -33,7 +33,8 @@
                (:file "sc2-voices-test")
                (:file "sc2-mxl-test")
                (:file "sc2-serdes-test")
-               (:file "sc2-xsd-test"))
+               (:file "sc2-xsd-test")
+               (:file "sc21-regression-test"))
   :perform (test-op (o c)
              (unless (symbol-call :rove :run c)
                (error "tests failed for ~A" (component-name c)))))

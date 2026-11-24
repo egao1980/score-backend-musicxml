@@ -42,6 +42,8 @@ Every golden and corpus file validates against the MusicXML 4.0 XSD (github.com/
 | `corpus/hymn-to-joy.musicxml` | *Hymn to Joy*: Ludwig van Beethoven (1824); text Friedrich Schiller (1785); harmony ours |
 | `corpus/hymn-split.musicxml`, `corpus/hymn-shared.musicxml` | *Tallis's Canon*: Thomas Tallis (1567); text Thomas Ken (1674); harmony ours |
 
+The events of each voice have ids of their own (`p1v2t5`: part, voice, serial), so a slur or hairpin of the tune data belongs to one voice. Until 0.1.1 every voice of a tune numbered its events from `t1`, and `corpus/old-hundredth.musicxml` repeated the soprano's crescendo in the alto, tenor and bass (#3); regenerating changed only that file. `tests/sc21-regression-test.lisp` pins the spanners of every corpus file.
+
 Melodies are first phrases, re-encoded from memory of the public-domain tunes; structure marks some pieces carry (the D.S. al Coda of *Camptown Races*, the endings of *Yankee Doodle*, the key change of *Hymn to Joy*, the meter changes of *Shenandoah*) are ours, there to exercise the reader.
 
 The brief also lists MusicXML files exported by MuseScore 4. No MuseScore was available when these fixtures were made; the MuseScore round trip belongs to score-parity's MuseScore oracle (slice SC5).

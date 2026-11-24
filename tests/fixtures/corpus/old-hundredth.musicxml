@@ -340,13 +340,6 @@
       <backup>
         <duration>4</duration>
       </backup>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="crescendo" number="1"/>
-        </direction-type>
-        <voice>2</voice>
-        <staff>1</staff>
-      </direction>
       <note default-x="80">
         <pitch>
           <step>C</step>
@@ -372,13 +365,6 @@
       <backup>
         <duration>4</duration>
       </backup>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="crescendo" number="1"/>
-        </direction-type>
-        <voice>5</voice>
-        <staff>2</staff>
-      </direction>
       <note default-x="80">
         <pitch>
           <step>G</step>
@@ -404,13 +390,6 @@
       <backup>
         <duration>4</duration>
       </backup>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="crescendo" number="1"/>
-        </direction-type>
-        <voice>6</voice>
-        <staff>2</staff>
-      </direction>
       <note default-x="80">
         <pitch>
           <step>C</step>
@@ -506,13 +485,6 @@
         <stem default-y="10">down</stem>
         <staff>1</staff>
       </note>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="stop" number="1"/>
-        </direction-type>
-        <voice>2</voice>
-        <staff>1</staff>
-      </direction>
       <backup>
         <duration>4</duration>
       </backup>
@@ -538,13 +510,6 @@
         <stem default-y="10">up</stem>
         <staff>2</staff>
       </note>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="stop" number="1"/>
-        </direction-type>
-        <voice>5</voice>
-        <staff>2</staff>
-      </direction>
       <backup>
         <duration>4</duration>
       </backup>
@@ -570,13 +535,6 @@
         <stem default-y="10">down</stem>
         <staff>2</staff>
       </note>
-      <direction placement="below">
-        <direction-type>
-          <wedge type="stop" number="1"/>
-        </direction-type>
-        <voice>6</voice>
-        <staff>2</staff>
-      </direction>
     </measure>
     <measure number="4" width="230">
       <note default-x="80">
