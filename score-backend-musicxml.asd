@@ -10,6 +10,7 @@
   :serial t
   :components ((:file "package")
                (:file "tables")
+               (:file "support")
                (:file "harmony")
                (:file "reader")
                (:file "voices")

@@ -71,12 +71,97 @@
 
 (in-package #:score-backend-musicxml)
 
+;;; Reading ----------------------------------------------------------------------
+
 (defun harmony-to-chord-symbol (element)
   "The CHORD-SYMBOL of the <harmony> ELEMENT (file header)."
-  (declare (ignore element))
-  (%sc2-pending 'harmony-to-chord-symbol))
+  (check-type element xml-protocol:xml-element)
+  (%harmony-symbol (%loc element)))
+
+(defun %harmony-pitch-class (harmony loc prefix)
+  "The PITCH-CLASS-NAME of the located <root> or <bass> LOC (PREFIX \"root\" or
+\"bass\") of the <harmony> HARMONY (rule 3), or NIL when its alter is
+unsupported."
+  (let* ((kids (%walk loc))
+         (step (%kid kids (concatenate 'string prefix "-step")))
+         (alter (%kid kids (concatenate 'string prefix "-alter")))
+         (letter (and step (%step-letter (%text step))))
+         (value (if alter (%parse-decimal (%text alter)) 0)))
+    (unless letter
+      (%format-error harmony (format nil "<~A-step> is not a letter A-G" prefix)))
+    (and (integerp value) (<= -2 value 2)
+         (music-theory:make-pitch-class-name :letter letter :alter value))))
+
+(defun %harmony-degree (loc)
+  "The music-theory degree (type value alter) of the located <degree> LOC (rule
+4), or NIL when it is unsupported."
+  (let* ((kids (%walk loc))
+         (value (let ((kid (%kid kids "degree-value"))) (and kid (%parse-decimal (%text kid)))))
+         (alter (let ((kid (%kid kids "degree-alter"))) (and kid (%parse-decimal (%text kid)))))
+         (type (let ((kid (%kid kids "degree-type")))
+                 (and kid (find (%text kid) '(:add :alter :subtract) :test #'string-equal)))))
+    (and type (typep value '(integer 1)) (integerp alter)
+         (list type value alter))))
+
+(defun %harmony-symbol (loc)
+  "The CHORD-SYMBOL of the located <harmony> LOC (file header, rules 1-5), or
+NIL when the harmony is dropped as unsupported."
+  (let ((poison (%poison loc)))
+    (when poison
+      (return-from %harmony-symbol
+        (%unsupported "harmony" loc (format nil "<~A> harmony is outside the model" (%name poison))))))
+  (flet ((drop (reason &optional cause)
+           (return-from %harmony-symbol (%unsupported "harmony" loc reason cause))))
+    (let* ((kids (%walk loc))
+           (kind-loc (or (%kid kids "kind") (%format-error loc "a <harmony> without <kind>")))
+           (kind (%text kind-loc)))
+      (if (string= kind "none")
+          (music-theory:musicxml-kind-chord-symbol kind nil)
+          (let* ((root-loc (%kid kids "root"))
+                 (root (cond (root-loc (or (%harmony-pitch-class loc root-loc "root")
+                                           (drop "a root alter that isn't an integer -2..2")))
+                             ((string/= kind "other")
+                              (%format-error loc "a <harmony> without <root>"))))
+                 (bass-loc (%kid kids "bass"))
+                 (bass (and bass-loc (or (%harmony-pitch-class loc bass-loc "bass")
+                                         (drop "a bass alter that isn't an integer -2..2"))))
+                 (degrees (loop for degree in (%kids kids "degree")
+                                collect (or (%harmony-degree degree)
+                                            (drop "a <degree> outside the model"))))
+                 (symbol (handler-case (music-theory:musicxml-kind-chord-symbol
+                                        kind root :bass bass :degrees degrees)
+                           (music-theory:music-theory-error (condition)
+                             (drop "a chord music-theory can't hold" condition)))))
+            (or symbol (drop "a chord spelled by its degrees alone (kind other)")))))))
+
+;;; Writing ------------------------------------------------------------------------
+
+(defun %harmony-step-element (prefix pitch-class)
+  "<root> or <bass> (PREFIX) for PITCH-CLASS: the step, and the alter unless 0."
+  (let ((alter (music-theory:pitch-class-name-alter pitch-class)))
+    (%el prefix nil
+         (%el (concatenate 'string prefix "-step") nil
+              (string (char +steps+ (music-theory:pitch-class-name-letter pitch-class))))
+         (and (/= alter 0)
+              (%el (concatenate 'string prefix "-alter") nil (format nil "~D" alter))))))
 
 (defun chord-symbol-to-harmony (symbol &key id)
   "(values <harmony> element, lost descriptions) for SYMBOL (file header)."
-  (declare (ignore symbol id))
-  (%sc2-pending 'chord-symbol-to-harmony))
+  (check-type symbol music-theory:chord-symbol)
+  (check-type id (or null string))
+  (multiple-value-bind (kind degrees) (music-theory:chord-symbol-musicxml-kind symbol)
+    (let ((root (or (music-theory:chord-symbol-root symbol)     ; N.C.: MusicXML needs a root
+                    (music-theory:make-pitch-class-name :letter 0)))
+          (bass (music-theory:chord-symbol-bass symbol)))
+      (values (%el "harmony" (list (cons "id" id))
+                   (%harmony-step-element "root" root)
+                   (%el "kind" nil kind)
+                   (and bass (%harmony-step-element "bass" bass))
+                   (loop for (type value alter) in degrees
+                         collect (%el "degree" nil
+                                      (%el "degree-value" nil (format nil "~D" value))
+                                      (%el "degree-alter" nil (format nil "~D" alter))
+                                      (%el "degree-type" nil (string-downcase (symbol-name type))))))
+              (and (or (music-theory:chord-symbol-text symbol)
+                       (music-theory:chord-symbol-dialect symbol))
+                   (list "chord-symbol text"))))))

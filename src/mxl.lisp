@@ -49,12 +49,78 @@ rootfile media-type in container.xml. Data.")
 (defparameter +mxl-rootfile+ "score.musicxml"
   "The entry name WRITE-MXL gives the score. Data.")
 
+(defparameter +mxl-container+ "META-INF/container.xml"
+  "The entry name of an .mxl archive's container file. Data.")
+
+(defun %container-text ()
+  "META-INF/container.xml as WRITE-MXL writes it (file header)."
+  (xml-protocol:encode
+   (xml-protocol:make-xml-document
+    :children (list (%el "container" nil
+                         (%el "rootfiles" nil
+                              (%el "rootfile" (list (cons "full-path" +mxl-rootfile+)
+                                                    (cons "media-type" +musicxml-media-type+)))))))
+   :pretty t :declaration t))
+
 (defun write-mxl (score &optional destination)
   "SCORE as a compressed MusicXML archive, to DESTINATION (file header)."
-  (declare (ignore score destination))
-  (%sc2-pending 'write-mxl))
+  (check-type score score-protocol:score)
+  (check-type destination (or null pathname stream))
+  (let ((octets (compression-protocol:write-archive-bytes
+                 (list (list "mimetype" +mxl-mimetype+)
+                       (list +mxl-container+ (%container-text))
+                       (list +mxl-rootfile+ (write-musicxml score)))
+                 :format :zip)))
+    (etypecase destination
+      (null octets)
+      (pathname
+       (with-open-file (out destination :direction :output :if-exists :supersede
+                                        :if-does-not-exist :create :element-type '(unsigned-byte 8))
+         (write-sequence octets out))
+       destination)
+      (stream (write-sequence octets destination) destination))))
 
 (defun read-mxl (source &key split-voices (unsupported :error))
   "The SCORE in the compressed MusicXML archive SOURCE (file header)."
-  (declare (ignore source split-voices unsupported))
-  (%sc2-pending 'read-mxl))
+  (check-type source (or pathname (vector (unsigned-byte 8))))
+  (%check-read-options split-voices unsupported)
+  (read-musicxml (%mxl-rootfile-octets source) :split-voices split-voices :unsupported unsupported))
+
+(defun %mxl-error (position reason &optional cause)
+  (error 'score-protocol:score-format-error :format :mxl :position position :reason reason :cause cause))
+
+(defun %container-rootfile (document)
+  "The full-path of the first MusicXML <rootfile> of the container DOCUMENT, or NIL."
+  (let* ((root (xml-protocol:document-root-element document))
+         (rootfiles (and root (xml-protocol:xml-child root "rootfiles")))
+         (rootfile (and rootfiles
+                        (find-if (lambda (rootfile)
+                                   (let ((type (xml-protocol:xml-attr rootfile "media-type")))
+                                     (or (null type) (string= (%trim type) +musicxml-media-type+))))
+                                 (xml-protocol:xml-children-named rootfiles "rootfile")))))
+    (and rootfile (xml-protocol:xml-attr rootfile "full-path"))))
+
+(defun %mxl-rootfile-octets (source)
+  "The octets of the MusicXML rootfile of the .mxl archive SOURCE (file header).
+Archive damage is a SCORE-FORMAT-ERROR :MXL with the compression-protocol
+condition as CAUSE."
+  (let ((archive (handler-case (compression-protocol:open-archive source :format :zip)
+                   (compression-protocol:compression-error (condition)
+                     (%mxl-error nil "not a zip archive" condition)))))
+    (unwind-protect
+         (handler-case
+             (let ((names (mapcar #'compression-protocol:archive-entry-name
+                                  (compression-protocol:archive-entries archive))))
+               (unless (member +mxl-container+ names :test #'string=)
+                 (%mxl-error +mxl-container+ "no container"))
+               (let ((path (%container-rootfile
+                            (%decode-xml (compression-protocol:read-entry archive +mxl-container+)
+                                         :mxl +mxl-container+))))
+                 (unless path
+                   (%mxl-error +mxl-container+ "no MusicXML rootfile in the container"))
+                 (unless (member path names :test #'string=)
+                   (%mxl-error path "the rootfile has no entry"))
+                 (compression-protocol:read-entry archive path)))
+           (compression-protocol:compression-error (condition)
+             (%mxl-error nil "a damaged archive" condition)))
+      (compression-protocol:close-archive archive))))

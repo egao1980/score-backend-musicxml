@@ -2,7 +2,7 @@
 
 Reads and writes MusicXML 4.0 partwise, plain (`.musicxml`) and compressed (`.mxl`), for [score-protocol](https://github.com/egao1980/score-protocol). XML goes through [xml-protocol](https://github.com/egao1980/xml-protocol) (the DOCTYPE is written, never fetched), archives through [compression-protocol](https://github.com/egao1980/compression-protocol), and chord symbols are [music-theory](https://github.com/egao1980/music-theory) values.
 
-**Status:** SC2 contract (0.1.0). The API is exported and stubbed; the exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
+**Status:** SC2 (0.1.0) implemented. The exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
 
 | Function | Does |
 |----------|------|
