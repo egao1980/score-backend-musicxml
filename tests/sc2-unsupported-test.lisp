@@ -1,0 +1,188 @@
+;;;; SC2 content outside the model (src/reader.lisp, "Unsupported") and damaged
+;;;; documents (SCORE-FORMAT-ERROR).
+
+(in-package #:score-backend-musicxml/tests)
+
+(defparameter +m1+ "/score-partwise[1]/part[1]/measure[1]")
+(defparameter +m2+ "/score-partwise[1]/part[1]/measure[2]")
+
+(defparameter +unsupported-cases+
+  `(;; (measures clean-measures element position)
+    ((,(n "C4" 4 (nots "<ornaments><trill-mark/></ornaments>"))) (,(n "C4" 4))
+     "ornaments" ,(cat +m1+ "/note[1]/notations[1]/ornaments[1]"))
+    ((,(n "C4" 4 (nots "<technical><fingering>1</fingering></technical>"))) (,(n "C4" 4))
+     "technical" ,(cat +m1+ "/note[1]/notations[1]/technical[1]"))
+    ((,(n "C4" 4 (nots "<arpeggiate/>"))) (,(n "C4" 4))
+     "arpeggiate" ,(cat +m1+ "/note[1]/notations[1]/arpeggiate[1]"))
+    ((,(cat "<note><unpitched><display-step>C</display-step><display-octave>5</display-octave></unpitched><duration>2</duration></note>" (n "D4" 2)))
+     (,(n "D4" 2)) "note" ,(cat +m1+ "/note[1]"))
+    ((,(cat "<note><cue/><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration></note>" (n "D4" 2)))
+     (,(n "D4" 2)) "note" ,(cat +m1+ "/note[1]"))
+    ((,(cat "<note><pitch><step>C</step><alter>0.5</alter><octave>4</octave></pitch><duration>2</duration></note>" (n "D4" 2)))
+     (,(n "D4" 2)) "note" ,(cat +m1+ "/note[1]"))
+    ((,(cat (n "C4" 4) "<note><chord/><rest/><duration>4</duration></note>")) (,(n "C4" 4))
+     "note" ,(cat +m1+ "/note[2]"))
+    ((,(cat (n "C4" 4) (bk 2) (n "D4" 2))) (,(n "C4" 4)) "note" ,(cat +m1+ "/note[2]"))
+    ((,(cat "<figured-bass><figure><figure-number>6</figure-number></figure></figured-bass>" (n "C4" 4)))
+     (,(n "C4" 4)) "figured-bass" ,(cat +m1+ "/figured-bass[1]"))
+    ((,(cat (dir "<octave-shift type=\"down\" size=\"8\"/>") (n "C4" 4))) (,(n "C4" 4))
+     "octave-shift" ,(cat +m1+ "/direction[1]/direction-type[1]/octave-shift[1]"))
+    ((,(cat (dir "<pedal type=\"start\"/>") (n "C4" 4))) (,(n "C4" 4))
+     "pedal" ,(cat +m1+ "/direction[1]/direction-type[1]/pedal[1]"))
+    ((,(cat (dir "<words>dolce</words>") (n "C4" 4))) (,(n "C4" 4))
+     "words" ,(cat +m1+ "/direction[1]/direction-type[1]/words[1]"))
+    ((,(cat (dir (dyn "ppppp")) (n "C4" 4))) (,(n "C4" 4))
+     "ppppp" ,(cat +m1+ "/direction[1]/direction-type[1]/dynamics[1]/ppppp[1]"))
+    ((,(cat (dir (dyn "mf")) (dir (dyn "p")) (n "C4" 4))) (,(cat (dir (dyn "mf")) (n "C4" 4)))
+     "dynamics" ,(cat +m1+ "/direction[2]/direction-type[1]/dynamics[1]"))
+    ((,(cat (dir "<rehearsal>A</rehearsal>") (dir "<rehearsal>B</rehearsal>") (n "C4" 4)))
+     (,(cat (dir "<rehearsal>A</rehearsal>") (n "C4" 4)))
+     "rehearsal" ,(cat +m1+ "/direction[2]/direction-type[1]/rehearsal[1]"))
+    ((,(cat (dir "<metronome><beat-unit>quarter</beat-unit><beat-unit>eighth</beat-unit></metronome>") (n "C4" 4)))
+     (,(n "C4" 4)) "metronome" ,(cat +m1+ "/direction[1]/direction-type[1]/metronome[1]"))
+    ((,(cat (dir "<metronome><beat-unit>quarter</beat-unit><per-minute>ca. 60</per-minute></metronome>") (n "C4" 4)))
+     (,(n "C4" 4)) "metronome" ,(cat +m1+ "/direction[1]/direction-type[1]/metronome[1]"))
+    ((,(cat (dir "<wedge type=\"crescendo\"/>") (n "C4" 4))) (,(n "C4" 4))
+     "wedge" ,(cat +m1+ "/direction[1]/direction-type[1]/wedge[1]"))
+    ((,(cat (n "C4" 4) (dir "<wedge type=\"stop\"/>"))) (,(n "C4" 4))
+     "wedge" ,(cat +m1+ "/direction[1]/direction-type[1]/wedge[1]"))
+    ((,(n "C4" 4 (nots "<fermata>double-angled</fermata>"))) (,(n "C4" 4))
+     "fermata" ,(cat +m1+ "/note[1]/notations[1]/fermata[1]"))
+    ((,(n "C4" 4 (nots "<fermata/><fermata type=\"inverted\"/>"))) (,(n "C4" 4 (nots "<fermata/>")))
+     "fermata" ,(cat +m1+ "/note[1]/notations[1]/fermata[2]"))
+    ((,(n "C4" 4 (nots "<articulations><scoop/></articulations>"))) (,(n "C4" 4))
+     "scoop" ,(cat +m1+ "/note[1]/notations[1]/articulations[1]/scoop[1]"))
+    ((,(n "C4" 4 "<lyric><humming/></lyric>")) (,(n "C4" 4)) "lyric" ,(cat +m1+ "/note[1]/lyric[1]"))
+    ((,(n "C4" 4 "<lyric><syllabic>start</syllabic><text>a</text></lyric>")) (,(n "C4" 4))
+     "lyric" ,(cat +m1+ "/note[1]/lyric[1]"))
+    ((,(cat (n "C4" 2 "<tie type=\"start\"/>") (n "D4" 2))) (,(cat (n "C4" 2) (n "D4" 2)))
+     "tie" ,(cat +m1+ "/note[1]/tie[1]"))
+    ((,(cat (n "C4" 2 (nots "<tied type=\"start\"/>")) (n "D4" 2))) (,(cat (n "C4" 2) (n "D4" 2)))
+     "tied" ,(cat +m1+ "/note[1]/notations[1]/tied[1]"))
+    ((,(cat (n "C4" 2 (nots "<slur type=\"start\"/>")) (n "D4" 2))) (,(cat (n "C4" 2) (n "D4" 2)))
+     "slur" ,(cat +m1+ "/note[1]/notations[1]/slur[1]"))
+    ((,(cat (n "C4" 2) (n "D4" 2 (nots "<slur type=\"stop\"/>")))) (,(cat (n "C4" 2) (n "D4" 2)))
+     "slur" ,(cat +m1+ "/note[2]/notations[1]/slur[1]"))
+    ((,(cat "<attributes><clef><sign>percussion</sign></clef></attributes>" (n "C4" 4))) (,(n "C4" 4))
+     "clef" ,(cat +m1+ "/attributes[2]/clef[1]"))
+    ((,(n "C4" 4) ,(cat "<attributes><clef><sign>F</sign><line>4</line></clef></attributes>" (n "C3" 4)))
+     (,(n "C4" 4) ,(n "C3" 4)) "clef" ,(cat +m2+ "/attributes[1]/clef[1]"))
+    ((,(cat "<attributes><transpose><diatonic>-1</diatonic><chromatic>-2</chromatic></transpose></attributes>" (n "C4" 4)))
+     (,(n "C4" 4)) "transpose" ,(cat +m1+ "/attributes[2]/transpose[1]"))
+    ((,(n "C4" 4) ,(cat "<attributes><key><fifths>0</fifths><mode>dorian</mode></key></attributes>" (n "D4" 4)))
+     (,(n "C4" 4) ,(n "D4" 4)) "key" ,(cat +m2+ "/attributes[1]/key[1]"))
+    ((,(n "C4" 4) ,(cat "<attributes><key><key-step>C</key-step><key-alter>-2</key-alter></key></attributes>" (n "D4" 4)))
+     (,(n "C4" 4) ,(n "D4" 4)) "key" ,(cat +m2+ "/attributes[1]/key[1]"))
+    ((,(n "C4" 4) ,(cat (n "D4" 2) "<attributes><key><fifths>1</fifths></key></attributes>" (n "E4" 2)))
+     (,(n "C4" 4) ,(cat (n "D4" 2) (n "E4" 2))) "key" ,(cat +m2+ "/attributes[1]/key[1]"))
+    ((,(n "C4" 4) ,(cat "<attributes><time><senza-misura/></time></attributes>" (n "D4" 4)))
+     (,(n "C4" 4) ,(n "D4" 4)) "time" ,(cat +m2+ "/attributes[1]/time[1]"))
+    ((,(n "C4" 4) ,(cat "<attributes><time><beats>2</beats><beat-type>4</beat-type><beats>3</beats><beat-type>8</beat-type></time></attributes>" (n "D4" 4)))
+     (,(n "C4" 4) ,(n "D4" 4)) "time" ,(cat +m2+ "/attributes[1]/time[1]"))
+    ((,(cat (n "C4" 4) (bl "right" "<bar-style>heavy-heavy</bar-style>"))) (,(cat (n "C4" 4) (bl "right")))
+     "bar-style" ,(cat +m1+ "/barline[1]/bar-style[1]"))
+    ((,(cat (n "C4" 2) (bl "middle" "<bar-style>dashed</bar-style>") (n "D4" 2))) (,(cat (n "C4" 2) (n "D4" 2)))
+     "barline" ,(cat +m1+ "/barline[1]"))
+    ((,(cat (n "C4" 4) (bl "right" "<repeat direction=\"forward\"/>"))) (,(cat (n "C4" 4)))
+     "repeat" ,(cat +m1+ "/barline[1]/repeat[1]"))
+    ((,(cat (bl "left" "<ending number=\"first\" type=\"start\"/>") (n "C4" 4))) (,(n "C4" 4))
+     "ending" ,(cat +m1+ "/barline[1]/ending[1]"))
+    ((,(cat "<harmony><root><root-step>C</root-step></root><kind>other</kind></harmony>" (n "C4" 4))) (,(n "C4" 4))
+     "harmony" ,(cat +m1+ "/harmony[1]"))
+    ((,(cat "<harmony><root><root-step>C</root-step></root><kind>major</kind><inversion>1</inversion></harmony>" (n "C4" 4)))
+     (,(cat "<harmony><root><root-step>C</root-step></root><kind>major</kind></harmony>" (n "C4" 4)))
+     "inversion" ,(cat +m1+ "/harmony[1]/inversion[1]"))))
+
+(deftest-parametrize unsupported-elements
+    ((measures clean element position) :rows (quoted-rows +unsupported-cases+))
+  (let ((xml (mxml measures))
+        (expected (read-musicxml (mxml clean))))
+    (testing (format nil "<~A> signals musicxml-unsupported at ~A" element position)
+      (let ((c (signalled (lambda () (read-musicxml xml)) 'musicxml-unsupported)))
+        (ok (typep c 'musicxml-unsupported))
+        (ok (equal element (and c (musicxml-unsupported-element c))))
+        (ok (equal position (and c (score-format-error-position c))))
+        (ok (eq :musicxml (and c (score-format-error-format c))))
+        (ok (and c (find-restart 'skip-element c) t))))
+    (testing "SKIP-ELEMENT reads on as if the element weren't there"
+      (ok (same-content-p expected (handler-bind ((musicxml-unsupported #'skip-element))
+                                     (read-musicxml xml)))))
+    (testing ":UNSUPPORTED :WARN drops it with a lossy-conversion warning"
+      (multiple-value-bind (score warnings)
+          (collect-warnings (lambda () (read-musicxml xml :unsupported :warn)) 'lossy-conversion)
+        (ok (same-content-p expected score))
+        (ok (equal (list (format nil "<~A>" element)) (mapcar #'lossy-conversion-what warnings)))
+        (ok (every (lambda (w) (eq :musicxml (lossy-conversion-format w))) warnings))))
+    (testing ":UNSUPPORTED :SKIP drops it silently"
+      (multiple-value-bind (score seen)
+          (collect-warnings (lambda () (read-musicxml xml :unsupported :skip))
+                            '(or musicxml-unsupported lossy-conversion))
+        (ok (same-content-p expected score))
+        (ok (notany (lambda (c) (typep c '(or musicxml-unsupported lossy-conversion))) seen))))))
+
+(deftest ignored-elements-are-silent
+  (testing "layout, playback and bookkeeping elements are dropped without a signal"
+    (let ((xml (mxml (list (cat "<print new-system=\"yes\"/>"
+                                "<attributes><staff-details><staff-lines>5</staff-lines></staff-details><measure-style><multiple-rest>2</multiple-rest></measure-style></attributes>"
+                                (dir "<dashes type=\"start\"/>") "<sound dynamics=\"80\"/>"
+                                (n "C4" 4 "<instrument id=\"I1\"/><notehead>x</notehead><beam number=\"1\">begin</beam>"
+                                   (nots "<tuplet type=\"start\"/>")
+                                   "<lyric><text>a</text><end-line/></lyric>")
+                                "<listening/>" "<bookmark id=\"b\"/>"))
+                     :head "<defaults><scaling><millimeters>7</millimeters><tenths>40</tenths></scaling></defaults><credit page=\"1\"><credit-words>T</credit-words></credit>"
+                     :score-part "<score-instrument id=\"I1\"><instrument-name>Piano</instrument-name></score-instrument><midi-instrument id=\"I1\"><midi-channel>1</midi-channel></midi-instrument>")))
+      (multiple-value-bind (score seen)
+          (collect-warnings (lambda () (read-musicxml xml)) '(or score-error score-warning warning))
+        (ok (typep score 'score))
+        (ok (null seen))
+        (ok (equal (voice-forms score 0 0) '(((:note :pitch "C4" :duration 1 :lyrics ((:lyric :text "a"))))))))))
+  (testing "a later clef equal to the staff's is ignored"
+    (ok (equal (mapcar #'staff-clef
+                       (part-staves (part-at (read-snippet (list (n "C4" 4)
+                                                                 (cat "<attributes><clef><sign>G</sign><line>2</line></clef></attributes>" (n "D4" 4))))
+                                             0)))
+               '(:treble)))))
+
+;;; Damaged documents -------------------------------------------------------------------
+
+(defparameter +format-error-cases+
+  `(;; (xml position) — position :xml for (line . column) from the XML error
+    ("<score-partwise><part-list>" :xml)
+    ("<?xml version=\"1.0\"?><score-timewise version=\"4.0\"><part-list/></score-timewise>" "/score-timewise[1]")
+    ("<score-partwise version=\"4.0\"><part-list><score-part id=\"P1\"><part-name>T</part-name></score-part></part-list><part id=\"P9\"><measure number=\"1\"/></part></score-partwise>"
+     "/score-partwise[1]/part[1]")
+    (,(mxml (list "<note><pitch><step>C</step><octave>4</octave></pitch></note>")) ,(cat +m1+ "/note[1]"))
+    (,(mxml (list (n "C4" "-1"))) ,(cat +m1+ "/note[1]"))
+    (,(mxml (list (n "C4" 4)) :attributes nil) ,(cat +m1+ "/note[1]"))
+    (,(mxml (list (cat (n "C4" 2) (bk 4) (n "D4" 4)))) ,(cat +m1+ "/backup[1]"))
+    (,(mxml (list "<note><pitch><step>H</step><octave>4</octave></pitch><duration>4</duration></note>")) ,(cat +m1+ "/note[1]"))
+    (,(mxml (list "<note><pitch><step>C</step><octave>four</octave></pitch><duration>4</duration></note>")) ,(cat +m1+ "/note[1]"))
+    (,(mxml (list (n "C4" 4)) :extra-parts '(("P2" ("<note><rest/><duration>4</duration></note>" "<note><rest/><duration>4</duration></note>"))))
+     "/score-partwise[1]/part[2]")))
+
+(deftest-parametrize damaged-documents
+    ((xml position) :rows (quoted-rows +format-error-cases+))
+  (let ((c (signalled (lambda () (read-musicxml xml)) 'score-format-error)))
+    (testing (format nil "a score-format-error at ~S" position)
+      (ok (typep c 'score-format-error))
+      (ok (and c (not (typep c 'musicxml-unsupported))))
+      (ok (eq :musicxml (and c (score-format-error-format c))))
+      (if (eq position :xml)
+          (progn (ok (typep (and c (score-format-error-cause c)) 'xml-protocol:xml-error))
+                 (ok (consp (and c (score-format-error-position c)))))
+          (ok (equal position (and c (score-format-error-position c))))))))
+
+(deftest external-entities
+  (testing "the DOCTYPE's system id is never fetched, and reading goes on"
+    (ok (typep (read-musicxml (concatenate 'string "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE score-partwise SYSTEM \"http://www.musicxml.org/dtds/partwise.dtd\">"
+                                           (subseq (mxml (list (n "C4" 4))) 39)))
+               'score)))
+  (testing "an external entity is refused: a score-format-error caused by xml-protocol"
+    (let ((c (signalled (lambda ()
+                          (read-musicxml "<?xml version=\"1.0\"?>
+<!DOCTYPE score-partwise [<!ENTITY secret SYSTEM \"file:///etc/passwd\">]>
+<score-partwise version=\"4.0\"><movement-title>&secret;</movement-title><part-list><score-part id=\"P1\"><part-name>T</part-name></score-part></part-list><part id=\"P1\"><measure number=\"1\"/></part></score-partwise>"))
+                        'score-format-error)))
+      (ok (typep c 'score-format-error))
+      (ok (typep (and c (score-format-error-cause c)) 'xml-protocol:xml-entity-error)))))

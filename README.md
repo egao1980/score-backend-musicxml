@@ -1,12 +1,25 @@
 # score-backend-musicxml
 
-Reads and writes MusicXML 4.0 partwise, plain and compressed `.mxl`, on xml-protocol.
+Reads and writes MusicXML 4.0 partwise, plain (`.musicxml`) and compressed (`.mxl`), for [score-protocol](https://github.com/egao1980/score-protocol). XML goes through [xml-protocol](https://github.com/egao1980/xml-protocol) (the DOCTYPE is written, never fetched), archives through [compression-protocol](https://github.com/egao1980/compression-protocol), and chord symbols are [music-theory](https://github.com/egao1980/music-theory) values.
 
-**Status:** skeleton (0.0.1). The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md). The API and tests land through contract branches and team-solve.
+**Status:** SC2 contract (0.1.0). The API is exported and stubbed; the exact rules are in the file headers under `src/`, and the Rove suite under `tests/` is the spec. The design is in the capability brief [cl-stack/docs/capabilities/score.md](https://github.com/egao1980/cl-stack/blob/main/docs/capabilities/score.md).
+
+| Function | Does |
+|----------|------|
+| `read-musicxml` source `&key split-voices unsupported` | MusicXML (a pathname, the text, UTF-8 octets or a stream) → a score |
+| `write-musicxml` score `&optional destination` | score → MusicXML 4.0 text, byte-stable, ids as `id` attributes |
+| `read-mxl`, `write-mxl` | the same through a `.mxl` archive (`META-INF/container.xml`) |
+| `musicxml-to-score`, `score-to-musicxml` | the same on xml-protocol documents |
+| `harmony-to-chord-symbol`, `chord-symbol-to-harmony` | `<harmony>` ↔ music-theory chord symbol |
+| `split-voices` | hymnal layout: shared-stem chords on a staff → two voices |
+
+Loading the system registers the serdes-protocol formats `:musicxml` and `:mxl`. Content outside the model signals `musicxml-unsupported` with a `skip-element` restart, or is dropped with `:unsupported :warn` / `:skip`.
 
 ```sh
 cl-repo test --system score-backend-musicxml
 ```
+
+The XSD tests run `xmllint` when `MUSICXML_XSD` names a local copy of the MusicXML 4.0 `musicxml.xsd` with `xml.xsd`, `xlink.xsd` and `catalog.xml` beside it (github.com/w3c/musicxml, `schema/` at tag v4.0); otherwise they are skipped. Fixtures and their provenance: [tests/fixtures/PROVENANCE.md](tests/fixtures/PROVENANCE.md).
 
 ## License
 
